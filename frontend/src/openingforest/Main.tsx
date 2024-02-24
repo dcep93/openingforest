@@ -1,27 +1,15 @@
 import { useEffect, useState } from "react";
-import { Tactic, getTactics } from "./Lichess";
+import { Opening, build } from "./BuildFromCsv";
 
 var initialized = false;
 
 export default function Main() {
-  const [openings, updateOpenings] = useState<
-    | {
-        name: string;
-        tactics: Tactic[];
-      }[]
-    | null
-  >(null);
+  const cachedOpenings = null;
+  const [openings, updateOpenings] = useState<Opening[] | null>(cachedOpenings);
   useEffect(() => {
-    if (initialized) return;
+    if (initialized || openings !== null) return;
     initialized = true;
-    getTactics()
-      .then((tactics) => group(tactics, (t) => t.opening))
-      .then((g) =>
-        Object.entries(g)
-          .map(([name, tactics]) => ({ name, tactics }))
-          .sort((a, b) => b.tactics.length - a.tactics.length)
-      )
-      .then(updateOpenings);
+    build().then(updateOpenings);
   }, [openings]);
   return (
     <div>
@@ -29,12 +17,4 @@ export default function Main() {
       <pre>{JSON.stringify(openings, null, 2)}</pre>
     </div>
   );
-}
-
-function group<T>(arr: T[], f: (t: T) => string): { [k: string]: T[] } {
-  return arr.reduce((prev, curr) => {
-    const k = f(curr);
-    prev[k] = (prev[k] || []).concat(curr);
-    return prev;
-  }, {} as { [name: string]: T[] });
 }
