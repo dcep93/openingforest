@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Tactic, getTactics } from "./Lichess";
 
+var initialized = false;
+
 export default function Main() {
   const [openings, updateOpenings] = useState<
     | {
@@ -10,7 +12,8 @@ export default function Main() {
     | null
   >(null);
   useEffect(() => {
-    if (openings !== null) return;
+    if (initialized) return;
+    initialized = true;
     getTactics()
       .then((tactics) => group(tactics, (t) => t.opening))
       .then((g) =>
