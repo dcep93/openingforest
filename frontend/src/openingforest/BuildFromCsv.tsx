@@ -64,7 +64,12 @@ export function build(): Promise<Opening[]> {
                           (a, b) => a + b,
                           0
                         ),
-                        categories,
+                        categories: Object.fromEntries(
+                          Object.entries(categories)
+                            .map(([k, v]) => ({ k, v }))
+                            .sort((a, b) => b.v - a.v)
+                            .map(({ k, v }) => [k, v])
+                        ),
                       })
                     )
                   )
