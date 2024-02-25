@@ -2,6 +2,16 @@ import { Opening } from "./BuildFromCsv";
 
 import { kmeans } from "ml-kmeans";
 
+const NUM_CLUSTERS = 50;
+
+const MIN_RATIO = 0.01;
+
+export type Cluster = {
+  size: number;
+  openings: string[];
+  centroid: { [c: string]: number };
+};
+
 export default function cluster(openings: Opening[]) {
   const allCategories = Object.keys(
     openings.find((obj) => obj.name === "<all>")!.categories
@@ -13,7 +23,7 @@ export default function cluster(openings: Opening[]) {
       data: allCategories.map((c) => categories[c] / total || 0),
     }));
   const data = taggedData.map(({ data }) => data);
-  const clusters = kmeans(data, 25, {});
+  const clusters = kmeans(data, NUM_CLUSTERS, { seed: 0 });
   const info = clusters.computeInformation(data);
   const rval = Object.entries(
     group(
@@ -31,6 +41,7 @@ export default function cluster(openings: Opening[]) {
           .map(({ v, i }) => [allCategories[i], v])
       ),
     }))
+    .filter(({ size }) => size >= data.length * MIN_RATIO)
     .sort((a, b) => b.size - a.size);
   console.log(rval);
 }
