@@ -4,7 +4,7 @@ import cluster, { Cluster } from "./ClusterFromBuilt";
 import Hideable from "./Hideable";
 import raw_openings from "./data.json";
 
-var initialized = false;
+var initialized = true;
 
 const openings: Opening[] = raw_openings as unknown as Opening[];
 const clusters: Cluster[] = cluster(openings);

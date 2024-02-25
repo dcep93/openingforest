@@ -16,7 +16,7 @@ export type Row = {
 
 function getCategories(r: Row): string[] {
   // return r.Themes.split(" ");
-  const move = r.Moves.split(" ")[0];
+  const move = r.Moves.split(" ")[1];
   var column = move.charCodeAt(0) - 97;
   const char = r.FEN.split("/")
     [8 - parseInt(move[1])].split("")
@@ -36,7 +36,6 @@ function getCategories(r: Row): string[] {
 }
 
 export default function build() {
-  if (true) return;
   return (
     fetch("./lichess_db_puzzle.csv") // lichess_db_puzzle
       // 3709216 - PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
@@ -58,7 +57,6 @@ export default function build() {
               line += char;
             }
           }
-          console.log(arr.length);
           return arr.join("\n");
         })
       )
