@@ -19,7 +19,12 @@ export default function Main() {
       {openings.map((obj) => (
         <div
           key={obj.name}
-          style={{ border: "2px solid black", padding: "2em", margin: "2em" }}
+          style={{
+            cursor: "pointer",
+            border: "2px solid black",
+            padding: "2em",
+            margin: "2em",
+          }}
           onClick={() =>
             updateHiddens(
               Object.assign({}, hiddens, { [obj.name]: !hiddens[obj.name] })
