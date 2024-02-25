@@ -10,7 +10,7 @@ export type Opening = {
 export function build(): Promise<Opening[]> {
   return (
     fetch("./lichess_db_puzzle.csv") // lichess_db_puzzle
-      // PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
+      // 3709216 - PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
       .then((resp) =>
         resp.arrayBuffer().then((arrayBuffer) => {
           const uint8Array = new Uint8Array(arrayBuffer);
