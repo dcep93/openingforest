@@ -8,7 +8,7 @@ import by_theme from "./by_theme.json";
 
 var initialized = true;
 
-const opening_groups: { [k: string]: Opening[] } = {
+const openingGroups: { [k: string]: Opening[] } = {
   by_theme,
   by_move,
 };
@@ -19,18 +19,57 @@ export default function Main() {
     initialized = true;
     build();
   }, []);
-  const [group, updateGroup] = useState(Object.keys(opening_groups)[0]);
-  const openings = opening_groups[group];
-  const clusters: Cluster[] = cluster(openings);
+
+  const [numClusters, updateNumClusters] = useState(25);
+  const [numCategories, updateNumCategories] = useState(25);
+  const [minClusterRatio, updateMinClusterRatio] = useState(0.01);
+  const [group, updateGroup] = useState(Object.keys(openingGroups)[0]);
+
+  const openings = openingGroups[group];
+  const clusters: Cluster[] = cluster(openings, {
+    numClusters,
+    numCategories,
+    minClusterRatio,
+  });
   return (
     <div>
       <div>openingforest</div>
       <div>
-        <select value={group} onChange={(e) => updateGroup(e.target.value)}>
-          {Object.keys(opening_groups).map((g) => (
-            <option key={g}>{g}</option>
-          ))}
-        </select>
+        <div>
+          <select value={group} onChange={(e) => updateGroup(e.target.value)}>
+            {Object.keys(openingGroups).map((g) => (
+              <option key={g}>{g}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          numClusters:{" "}
+          <input
+            type="number"
+            style={{ width: "4em" }}
+            value={numClusters}
+            onChange={(e) => updateNumClusters(parseInt(e.target.value))}
+          />
+        </div>
+        <div>
+          numCategories:{" "}
+          <input
+            type="number"
+            style={{ width: "4em" }}
+            value={numCategories}
+            onChange={(e) => updateNumCategories(parseInt(e.target.value))}
+          />
+        </div>
+        <div>
+          minClusterRatio:{" "}
+          <input
+            type="number"
+            style={{ width: "4em" }}
+            step={0.01}
+            value={minClusterRatio}
+            onChange={(e) => updateMinClusterRatio(parseFloat(e.target.value))}
+          />
+        </div>
       </div>
       <div>cluster sizes: {clusters.map((c) => c.size).join(",")}</div>
       <div style={{ display: "flex" }}>

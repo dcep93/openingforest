@@ -2,23 +2,25 @@ import { Opening } from "./BuildFromCsv";
 
 import { kmeans } from "ml-kmeans";
 
-const NUM_CLUSTERS = 50;
-
-const NUM_CATEGORIES = 25;
-const MIN_CLUSTER_RATIO = 0.01;
-
 export type Cluster = {
   size: number;
   openings: string[];
   centroid: { [c: string]: number };
 };
 
-export default function cluster(openings: Opening[]) {
+export default function cluster(
+  openings: Opening[],
+  options: {
+    numClusters: number;
+    numCategories: number;
+    minClusterRatio: number;
+  }
+) {
   const allOpening = openings.find((obj) => obj.name === "<all>")!;
   const ratios = Object.fromEntries(
     Object.entries(allOpening.categories)
       .map(([k, v]) => [k, v / allOpening.total])
-      .slice(0, NUM_CATEGORIES)
+      .slice(0, options.numCategories)
   );
   const allCategories = Object.keys(ratios);
   const taggedData = openings
@@ -28,7 +30,7 @@ export default function cluster(openings: Opening[]) {
       data: allCategories.map((c) => (categories[c] / total || 0) - ratios[c]),
     }));
   const data = taggedData.map(({ data }) => data);
-  const clusters = kmeans(data, NUM_CLUSTERS, { seed: 0 });
+  const clusters = kmeans(data, options.numClusters, { seed: 0 });
   const info = clusters.computeInformation(data);
   return Object.entries(
     group(
@@ -46,7 +48,7 @@ export default function cluster(openings: Opening[]) {
           .map(({ v, i }) => [allCategories[i], v])
       ),
     }))
-    .filter(({ size }) => size >= data.length * MIN_CLUSTER_RATIO)
+    .filter(({ size }) => size >= data.length * options.minClusterRatio)
     .sort((a, b) => b.size - a.size);
 }
 
