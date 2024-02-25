@@ -13,19 +13,22 @@ export type Cluster = {
 };
 
 export default function cluster(openings: Opening[]) {
-  const allCategories = Object.keys(
-    openings.find((obj) => obj.name === "<all>")!.categories
-  );
+  const allOpening = openings.find((obj) => obj.name === "<all>")!;
+  const allCategories = Object.keys(allOpening.categories);
   const taggedData = openings
     .filter((obj) => !obj.name.includes("<"))
     .map(({ name, total, categories }) => ({
       name,
-      data: allCategories.map((c) => categories[c] / total || 0),
+      data: allCategories.map(
+        (c) =>
+          (categories[c] / total || 0) -
+          allOpening.categories[c] / allOpening.total
+      ),
     }));
   const data = taggedData.map(({ data }) => data);
   const clusters = kmeans(data, NUM_CLUSTERS, { seed: 0 });
   const info = clusters.computeInformation(data);
-  const rval = Object.entries(
+  return Object.entries(
     group(
       clusters.clusters.map((c, i) => ({ c, i })),
       (t) => t.c.toString()
@@ -43,7 +46,6 @@ export default function cluster(openings: Opening[]) {
     }))
     .filter(({ size }) => size >= data.length * MIN_RATIO)
     .sort((a, b) => b.size - a.size);
-  console.log(rval);
 }
 
 export function group<T>(arr: T[], f: (t: T) => string): { [k: string]: T[] } {
