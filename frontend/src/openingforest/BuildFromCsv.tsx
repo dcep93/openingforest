@@ -7,6 +7,38 @@ export type Opening = {
   total: number;
 };
 
+export type Row = {
+  OpeningTags: string;
+  Themes: string;
+  FEN: string;
+  Moves: string;
+};
+
+var numRows = -1;
+var rowsSeen = 0;
+
+function getCategories(r: Row): string[] {
+  if (++rowsSeen % 10000 === 0) console.log(rowsSeen, numRows);
+  // return r.Themes.split(" ");
+  const move = r.Moves.split(" ")[0];
+  var column = move.charCodeAt(0) - 97;
+  const char = r.FEN.split("/")
+    [8 - parseInt(move[1])].split("")
+    .find((char) => {
+      if (column === 0) {
+        return true;
+      }
+      const p = parseInt(char);
+      if (isNaN(p)) {
+        column -= 1;
+      } else {
+        column -= p;
+      }
+      return false;
+    });
+  return [`${char}->${move.slice(2)}`];
+}
+
 export default function build(): Promise<Opening[]> {
   return (
     fetch("./lichess_db_puzzle.csv") // lichess_db_puzzle
@@ -19,19 +51,20 @@ export default function build(): Promise<Opening[]> {
           for (let i = 0; i < uint8Array.length; i++) {
             const char = String.fromCharCode(uint8Array[i]);
             if (char === "\n") {
-              arr.push(line.split(",").slice(7).join(","));
+              arr.push(line);
               line = "";
             } else {
               line += char;
             }
           }
+          numRows = arr.length;
           return arr.join("\n");
         })
       )
       .then(
         (text) =>
           new Promise((resolve) =>
-            Papa.parse<{ OpeningTags: string; Themes: string }>(text, {
+            Papa.parse<Row>(text, {
               header: true,
               complete: (results) =>
                 Promise.resolve()
@@ -47,7 +80,7 @@ export default function build(): Promise<Opening[]> {
                             .forEach((name) => {
                               if (!openingCategories[name])
                                 openingCategories[name] = {};
-                              r.Themes.split(" ").forEach((c) => {
+                              getCategories(r).forEach((c) => {
                                 openingCategories[name][c] =
                                   (openingCategories[name][c] || 0) + 1;
                               });

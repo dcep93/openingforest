@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Opening } from "./BuildFromCsv";
+import build, { Opening } from "./BuildFromCsv";
 import cluster, { Cluster } from "./ClusterFromBuilt";
 import Hideable from "./Hideable";
 import raw_openings from "./data.json";
@@ -13,7 +13,7 @@ export default function Main() {
   useEffect(() => {
     if (initialized) return;
     initialized = true;
-    // build();
+    build();
   }, []);
   const [hiddens, updateHiddens] = useState<{ [key: string]: boolean }>({});
   return (
