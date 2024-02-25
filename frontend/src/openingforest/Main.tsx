@@ -16,28 +16,38 @@ export default function Main() {
   return (
     <div>
       <div>openingforest</div>
-      {openings.map((obj) => (
-        <div
-          key={obj.name}
-          style={{
-            cursor: "pointer",
-            border: "2px solid black",
-            padding: "2em",
-            margin: "2em",
-          }}
-          onClick={() =>
-            updateHiddens(
-              Object.assign({}, hiddens, { [obj.name]: !hiddens[obj.name] })
-            )
-          }
-        >
-          <div>{obj.name}</div>
-          <div>total: {obj.total}</div>
-          <pre hidden={hiddens[obj.name]}>
-            {JSON.stringify(obj.categories, null, 2)}
-          </pre>
-        </div>
-      ))}
+      {openings
+        .map(({ categories, ...obj }) => ({
+          categories: Object.fromEntries(
+            Object.entries(categories).map(([k, v]) => [
+              k,
+              (v / obj.total).toFixed(6),
+            ])
+          ),
+          ...obj,
+        }))
+        .map((obj) => (
+          <div
+            key={obj.name}
+            style={{
+              cursor: "pointer",
+              border: "2px solid black",
+              padding: "2em",
+              margin: "2em",
+            }}
+            onClick={() =>
+              updateHiddens(
+                Object.assign({}, hiddens, { [obj.name]: !hiddens[obj.name] })
+              )
+            }
+          >
+            <div>{obj.name}</div>
+            <div>total: {obj.total}</div>
+            <pre hidden={hiddens[obj.name]}>
+              {JSON.stringify(obj.categories, null, 2)}
+            </pre>
+          </div>
+        ))}
     </div>
   );
 }
