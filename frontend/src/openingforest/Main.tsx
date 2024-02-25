@@ -6,7 +6,7 @@ import raw_openings from "./data.json";
 
 var initialized = false;
 
-const openings: Opening[] = raw_openings;
+const openings: Opening[] = raw_openings as unknown as Opening[];
 const clusters: Cluster[] = cluster(openings);
 
 export default function Main() {
@@ -19,6 +19,7 @@ export default function Main() {
   return (
     <div>
       <div>openingforest</div>
+      <div>cluster sizes: {clusters.map((c) => c.size).join(",")}</div>
       <div style={{ display: "flex" }}>
         <div>
           {openings.map((obj, i) => (

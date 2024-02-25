@@ -14,11 +14,7 @@ export type Row = {
   Moves: string;
 };
 
-var numRows = -1;
-var rowsSeen = 0;
-
 function getCategories(r: Row): string[] {
-  if (++rowsSeen % 10000 === 0) console.log(rowsSeen, numRows);
   // return r.Themes.split(" ");
   const move = r.Moves.split(" ")[0];
   var column = move.charCodeAt(0) - 97;
@@ -39,7 +35,8 @@ function getCategories(r: Row): string[] {
   return [`${char}->${move.slice(2)}`];
 }
 
-export default function build(): Promise<Opening[]> {
+export default function build() {
+  return;
   return (
     fetch("./lichess_db_puzzle.csv") // lichess_db_puzzle
       // 3709216 - PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
@@ -51,13 +48,17 @@ export default function build(): Promise<Opening[]> {
           for (let i = 0; i < uint8Array.length; i++) {
             const char = String.fromCharCode(uint8Array[i]);
             if (char === "\n") {
+              line = line
+                .split(",")
+                .filter((_, i) => [1, 2, 7, 9].includes(i))
+                .join(",");
               arr.push(line);
               line = "";
             } else {
               line += char;
             }
           }
-          numRows = arr.length;
+          console.log(arr.length);
           return arr.join("\n");
         })
       )
@@ -73,7 +74,7 @@ export default function build(): Promise<Opening[]> {
                   .then((openingCategories) =>
                     Promise.resolve()
                       .then(() =>
-                        results.data.map((r) =>
+                        results.data.map((r, i) =>
                           (r.OpeningTags || "<none>")
                             .split(" ")
                             .concat("<all>")
