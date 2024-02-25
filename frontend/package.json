@@ -10,7 +10,6 @@
     "@types/node": "^16.18.83",
     "@types/react": "^18.2.58",
     "@types/react-dom": "^18.2.19",
-    "papaparse": "^5.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
@@ -40,8 +39,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@types/papaparse": "^5.3.14"
   }
 }
