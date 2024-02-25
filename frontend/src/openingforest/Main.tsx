@@ -11,6 +11,7 @@ export default function Main() {
     initialized = true;
     build().then(updateOpenings);
   }, [openings]);
+  console.log(openings);
   return (
     <div>
       <div>openingforest</div>
