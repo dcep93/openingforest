@@ -41,7 +41,8 @@ export function build(): Promise<Opening[]> {
                     Promise.resolve()
                       .then(() =>
                         results.data.map((r) =>
-                          r.OpeningTags.split(" ")
+                          (r.OpeningTags || "<none>")
+                            .split(" ")
                             .concat("<all>")
                             .forEach((name) => {
                               if (!openingCategories[name])
@@ -59,11 +60,11 @@ export function build(): Promise<Opening[]> {
                     Object.entries(openingCategories).map(
                       ([name, categories]) => ({
                         name,
-                        categories,
                         total: Object.values(categories).reduce(
                           (a, b) => a + b,
                           0
                         ),
+                        categories,
                       })
                     )
                   )
