@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import build, { Opening } from "./BuildFromCsv";
 import cluster, { Cluster } from "./ClusterFromBuilt";
 import Hideable from "./Hideable";
-import raw_openings from "./data.json";
+
+import by_move from "./by_move.json";
+import by_theme from "./by_theme.json";
 
 var initialized = true;
 
-const openings: Opening[] = raw_openings as unknown as Opening[];
-const clusters: Cluster[] = cluster(openings);
+const opening_groups: { [k: string]: Opening[] } = {
+  by_theme,
+  by_move,
+};
 
 export default function Main() {
   useEffect(() => {
@@ -15,37 +19,34 @@ export default function Main() {
     initialized = true;
     build();
   }, []);
-  const [hiddens, updateHiddens] = useState<{ [key: string]: boolean }>({});
+  const [group, updateGroup] = useState(Object.keys(opening_groups)[0]);
+  const openings = opening_groups[group];
+  const clusters: Cluster[] = cluster(openings);
   return (
     <div>
       <div>openingforest</div>
+      <div>
+        <select value={group} onChange={(e) => updateGroup(e.target.value)}>
+          {Object.keys(opening_groups).map((g) => (
+            <option key={g}>{g}</option>
+          ))}
+        </select>
+      </div>
       <div>cluster sizes: {clusters.map((c) => c.size).join(",")}</div>
       <div style={{ display: "flex" }}>
         <div>
           {openings.map((obj, i) => (
             <div key={i}>
-              <div
-                style={{
-                  display: "inline-block",
-                  cursor: "pointer",
-                  border: "2px solid black",
-                  padding: "2em",
-                  margin: "2em",
-                }}
-                onClick={() =>
-                  updateHiddens(
-                    Object.assign({}, hiddens, {
-                      [obj.name]: !hiddens[obj.name],
-                    })
-                  )
+              <Hideable
+                parent={
+                  <div>
+                    <div>{obj.name}</div>
+                    <div>total: {obj.total}</div>
+                  </div>
                 }
               >
-                <div>{obj.name}</div>
-                <div>total: {obj.total}</div>
-                <pre hidden={hiddens[obj.name]}>
-                  {JSON.stringify(obj.categories, null, 2)}
-                </pre>
-              </div>
+                {JSON.stringify(obj.categories, null, 2)}
+              </Hideable>
             </div>
           ))}
         </div>

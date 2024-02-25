@@ -15,7 +15,7 @@ export type Row = {
 };
 
 function getCategories(r: Row): string[] {
-  // return r.Themes.split(" ");
+  return r.Themes.split(" ");
   const move = r.Moves.split(" ")[1];
   var column = move.charCodeAt(0) - 97;
   const char = r.FEN.split("/")
