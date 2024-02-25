@@ -32,7 +32,7 @@ export default function Main() {
           }
         >
           <div>{obj.name}</div>
-          <div>{obj.total}</div>
+          <div>total: {obj.total}</div>
           <pre hidden={hiddens[obj.name]}>
             {JSON.stringify(obj.categories, null, 2)}
           </pre>
