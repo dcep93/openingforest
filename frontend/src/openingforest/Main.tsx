@@ -1,15 +1,14 @@
-import { useEffect, useState } from "react";
-import { Opening, build } from "./BuildFromCsv";
+import { useEffect } from "react";
+import { build } from "./BuildFromCsv";
 
 var initialized = false;
 
 export default function Main() {
-  const cachedOpenings = null;
-  const [openings, updateOpenings] = useState<Opening[] | null>(cachedOpenings);
+  const openings = null;
   useEffect(() => {
     if (initialized || openings !== null) return;
     initialized = true;
-    build().then(updateOpenings);
+    build().then(() => alert("built"));
   }, [openings]);
   console.log(openings);
   return (

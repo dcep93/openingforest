@@ -1,14 +1,15 @@
 import Papa from "papaparse";
 
+export type Categories = { [c: string]: number };
 export type Opening = {
   name: string;
-  categories: { [c: string]: number };
+  categories: Categories;
   total: number;
 };
 
 export function build(): Promise<Opening[]> {
   return (
-    fetch("./lichess_db_puzzle.csv") // lichess_db_puzzle
+    fetch("./sample.csv") // lichess_db_puzzle
       // PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
       .then((resp) =>
         resp.arrayBuffer().then((arrayBuffer) => {
@@ -35,32 +36,34 @@ export function build(): Promise<Opening[]> {
               complete: (results) =>
                 Promise.resolve()
                   .then(() => console.log(results))
-                  .then(() =>
-                    results.data.flatMap((r) =>
-                      r.OpeningTags.split(" ").map((name) => ({
-                        name,
-                        themes: r.Themes.split(" "),
-                      }))
-                    )
+                  .then(() => ({} as { [n: string]: Categories }))
+                  .then((openingCategories) =>
+                    Promise.resolve()
+                      .then(() =>
+                        results.data.map((r) =>
+                          r.OpeningTags.split(" ").forEach((name) => {
+                            if (!openingCategories[name])
+                              openingCategories[name] = {};
+                            r.Themes.split(" ").forEach((c) => {
+                              openingCategories[name][c] =
+                                (openingCategories[name][c] || 0) + 1;
+                            });
+                          })
+                        )
+                      )
+                      .then(() => openingCategories)
                   )
-                  .then((arr) => group(arr, (t) => t.name))
-                  .then((obj) =>
-                    Object.entries(obj)
-                      .map(([name, arr]) => ({
+                  .then((openingCategories) =>
+                    Object.entries(openingCategories).map(
+                      ([name, categories]) => ({
                         name,
-                        themes: arr.flatMap((a) => a.themes),
-                      }))
-                      .map(({ name, themes }) => ({
-                        name,
-                        total: themes.length,
-                        g: group(themes, (t) => t),
-                      }))
-                      .map(({ g, ...obj }) => ({
-                        categories: Object.fromEntries(
-                          Object.entries(g).map(([k, v]) => [k, v.length])
+                        categories,
+                        total: Object.values(categories).reduce(
+                          (a, b) => a + b,
+                          0
                         ),
-                        ...obj,
-                      }))
+                      })
+                    )
                   )
                   .then((arr) => arr.sort((a, b) => b.total - a.total))
                   .then((openings) => {
@@ -75,7 +78,11 @@ export function build(): Promise<Opening[]> {
 }
 
 export function group<T>(arr: T[], f: (t: T) => string): { [k: string]: T[] } {
+  let i = 0;
   return arr.reduce((prev, curr) => {
+    if (++i % 10000 === 0) {
+      console.log(i, arr.length);
+    }
     const k = f(curr);
     prev[k] = (prev[k] || []).concat(curr);
     return prev;
