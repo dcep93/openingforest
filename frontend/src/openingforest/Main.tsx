@@ -1,16 +1,15 @@
 import { useEffect } from "react";
 import { build } from "./BuildFromCsv";
+import openings from "./data.json";
 
-var initialized = false;
+var initialized = true;
 
 export default function Main() {
-  const openings = null;
   useEffect(() => {
-    if (initialized || openings !== null) return;
+    if (initialized) return;
     initialized = true;
     build().then(() => alert("built"));
-  }, [openings]);
-  console.log(openings);
+  }, []);
   return (
     <div>
       <div>openingforest</div>

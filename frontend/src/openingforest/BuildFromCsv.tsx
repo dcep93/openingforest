@@ -9,7 +9,7 @@ export type Opening = {
 
 export function build(): Promise<Opening[]> {
   return (
-    fetch("./sample.csv") // lichess_db_puzzle
+    fetch("./lichess_db_puzzle.csv") // lichess_db_puzzle
       // PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
       .then((resp) =>
         resp.arrayBuffer().then((arrayBuffer) => {
@@ -41,14 +41,16 @@ export function build(): Promise<Opening[]> {
                     Promise.resolve()
                       .then(() =>
                         results.data.map((r) =>
-                          r.OpeningTags.split(" ").forEach((name) => {
-                            if (!openingCategories[name])
-                              openingCategories[name] = {};
-                            r.Themes.split(" ").forEach((c) => {
-                              openingCategories[name][c] =
-                                (openingCategories[name][c] || 0) + 1;
-                            });
-                          })
+                          r.OpeningTags.split(" ")
+                            .concat("<all>")
+                            .forEach((name) => {
+                              if (!openingCategories[name])
+                                openingCategories[name] = {};
+                              r.Themes.split(" ").forEach((c) => {
+                                openingCategories[name][c] =
+                                  (openingCategories[name][c] || 0) + 1;
+                              });
+                            })
                         )
                       )
                       .then(() => openingCategories)
