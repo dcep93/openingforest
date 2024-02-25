@@ -36,7 +36,7 @@ function getCategories(r: Row): string[] {
 }
 
 export default function build() {
-  return;
+  if (true) return;
   return (
     fetch("./lichess_db_puzzle.csv") // lichess_db_puzzle
       // 3709216 - PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
