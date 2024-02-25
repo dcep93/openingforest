@@ -1,17 +1,10 @@
 import { useEffect, useState } from "react";
-import build, { Opening } from "./BuildFromCsv";
+import build from "./BuildFromCsv";
 import cluster, { Cluster } from "./ClusterFromBuilt";
 import Hideable from "./Hideable";
-
-import by_move from "./by_move.json";
-import by_theme from "./by_theme.json";
+import { openingGroups } from "./OpeningGroups";
 
 var initialized = true;
-
-const openingGroups: { [k: string]: Opening[] } = {
-  by_theme,
-  by_move,
-};
 
 export default function Main() {
   useEffect(() => {
