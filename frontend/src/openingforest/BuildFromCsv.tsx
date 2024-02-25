@@ -7,7 +7,7 @@ export type Opening = {
   total: number;
 };
 
-export function build(): Promise<Opening[]> {
+export default function build(): Promise<Opening[]> {
   return (
     fetch("./lichess_db_puzzle.csv") // lichess_db_puzzle
       // 3709216 - PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
@@ -83,16 +83,4 @@ export function build(): Promise<Opening[]> {
           )
       )
   );
-}
-
-export function group<T>(arr: T[], f: (t: T) => string): { [k: string]: T[] } {
-  let i = 0;
-  return arr.reduce((prev, curr) => {
-    if (++i % 10000 === 0) {
-      console.log(i, arr.length);
-    }
-    const k = f(curr);
-    prev[k] = (prev[k] || []).concat(curr);
-    return prev;
-  }, {} as { [name: string]: T[] });
 }

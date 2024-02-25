@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Opening, build } from "./BuildFromCsv";
+import { Opening } from "./BuildFromCsv";
+import cluster from "./ClusterFromBuilt";
 import raw_openings from "./data.json";
 
-var initialized = true;
+var initialized = false;
 
 const openings: Opening[] = raw_openings;
 
@@ -10,7 +11,8 @@ export default function Main() {
   useEffect(() => {
     if (initialized) return;
     initialized = true;
-    build();
+    // build();
+    cluster(openings);
   }, []);
   const [hiddens, updateHiddens] = useState<{ [name: string]: boolean }>({});
   return (
