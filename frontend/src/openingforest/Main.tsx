@@ -88,7 +88,7 @@ export default function Main() {
               <Hideable
                 parent={
                   <div>
-                    <div>index: {i + 1}</div>
+                    <div>index: {i}</div>
                   </div>
                 }
               >

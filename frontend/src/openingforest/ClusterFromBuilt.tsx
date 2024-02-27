@@ -49,6 +49,7 @@ export default function cluster(
       ),
     }))
     .filter(({ size }) => size >= data.length * options.minClusterRatio)
+    .concat({ size: Infinity, openings: [], centroid: ratios })
     .sort((a, b) => b.size - a.size);
 }
 
