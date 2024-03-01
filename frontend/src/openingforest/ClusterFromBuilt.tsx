@@ -2,13 +2,13 @@ import { Opening } from "./BuildFromCsv";
 
 import { kmeans } from "ml-kmeans";
 
-export type Cluster = {
+export type ClusterType = {
   size: number;
   openings: string[];
   centroid: { [c: string]: number };
 };
 
-export default function cluster(
+export default function buildClusters(
   openings: Opening[],
   options: {
     numClusters: number;
