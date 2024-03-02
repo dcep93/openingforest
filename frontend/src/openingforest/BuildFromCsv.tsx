@@ -62,57 +62,53 @@ export default function build() {
       )
       .then(
         (text) =>
-          new Promise((resolve) =>
+          new Promise<Papa.ParseResult<Row>>((resolve) =>
             Papa.parse<Row>(text, {
               header: true,
-              complete: (results) =>
-                Promise.resolve()
-                  .then(() => console.log(results))
-                  .then(() => ({} as { [n: string]: Categories }))
-                  .then((openingCategories) =>
-                    Promise.resolve()
-                      .then(() =>
-                        results.data.map((r, i) =>
-                          (r.OpeningTags || "<none>")
-                            .split(" ")
-                            .concat("<all>")
-                            .forEach((name) => {
-                              if (!openingCategories[name])
-                                openingCategories[name] = {};
-                              getCategories(r).forEach((c) => {
-                                openingCategories[name][c] =
-                                  (openingCategories[name][c] || 0) + 1;
-                              });
-                            })
-                        )
-                      )
-                      .then(() => openingCategories)
-                  )
-                  .then((openingCategories) =>
-                    Object.entries(openingCategories).map(
-                      ([name, categories]) => ({
-                        name,
-                        total: Object.values(categories).reduce(
-                          (a, b) => a + b,
-                          0
-                        ),
-                        categories: Object.fromEntries(
-                          Object.entries(categories)
-                            .map(([k, v]) => ({ k, v }))
-                            .sort((a, b) => b.v - a.v)
-                            .map(({ k, v }) => [k, v])
-                        ),
-                      })
-                    )
-                  )
-                  .then((arr) => arr.sort((a, b) => b.total - a.total))
-                  .then((openings) => {
-                    console.log(openings);
-                    return openings;
-                  })
-                  .then((openings) => resolve(openings)),
+              complete: (results) => resolve(results),
             })
           )
       )
+      .then((results) =>
+        Promise.resolve(results)
+          .then(() => console.log(results))
+          .then(() => ({} as { [n: string]: Categories }))
+          .then((openingCategories) =>
+            Promise.resolve()
+              .then(() =>
+                results.data.map((r, i) =>
+                  (r.OpeningTags || "<none>")
+                    .split(" ")
+                    .concat("<all>")
+                    .forEach((name) => {
+                      if (!openingCategories[name])
+                        openingCategories[name] = {};
+                      getCategories(r).forEach((c) => {
+                        openingCategories[name][c] =
+                          (openingCategories[name][c] || 0) + 1;
+                      });
+                    })
+                )
+              )
+              .then(() => openingCategories)
+          )
+      )
+      .then((openingCategories) =>
+        Object.entries(openingCategories).map(([name, categories]) => ({
+          name,
+          total: Object.values(categories).reduce((a, b) => a + b, 0),
+          categories: Object.fromEntries(
+            Object.entries(categories)
+              .map(([k, v]) => ({ k, v }))
+              .sort((a, b) => b.v - a.v)
+              .map(({ k, v }) => [k, v])
+          ),
+        }))
+      )
+      .then((arr) => arr.sort((a, b) => b.total - a.total))
+      .then((openings) => {
+        console.log(openings);
+        return openings;
+      })
   );
 }
