@@ -7,8 +7,10 @@ export const openingGroups: { [k: string]: Opening[] } = {
   by_move,
 };
 
+export type OpeningMovesType = { byName: { [k: string]: string[] } };
+
 var loaded = false;
-export function loadOpeningMoves(): Promise<{ [k: string]: string[] } | null> {
+export function loadOpeningMoves(): Promise<OpeningMovesType | null> {
   if (loaded) return Promise.resolve(null);
   loaded = true;
   return Promise.all(
@@ -21,10 +23,16 @@ export function loadOpeningMoves(): Promise<{ [k: string]: string[] } | null> {
             .slice(1)
             .filter((l) => l)
             .map((l) => l.split("\t"))
-            .map(([eco, name, pgn, uci, epd]) => [name, pgn])
+            .map(([eco, name, pgn, uci, epd]) => ({ eco, name, pgn, uci, epd }))
         )
     )
   )
     .then((arr) => arr.flatMap((a) => a))
-    .then(Object.fromEntries);
+    .then((arr) => arr.map(({ name, pgn }) => ({ name, pgn: pgn.split(" ") })))
+    .then((arr) => ({
+      byName: Object.fromEntries(arr.map(({ name, pgn }) => [name, pgn])),
+      byMoves: Object.fromEntries(
+        arr.map(({ name, pgn }) => [pgn.join(" "), name])
+      ),
+    }));
 }

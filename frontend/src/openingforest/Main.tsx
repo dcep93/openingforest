@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import build from "./BuildFromCsv";
 import Clusters from "./Clusters";
-import { loadOpeningMoves, openingGroups } from "./OpeningGroups";
+import {
+  OpeningMovesType,
+  loadOpeningMoves,
+  openingGroups,
+} from "./OpeningGroups";
 import Openings from "./Openings";
 
 var initialized = false;
@@ -13,7 +17,9 @@ export default function Main() {
     false && build();
   }, []);
 
-  const [openingMoves, updateOpeningMoves] = useState<{} | null>(null);
+  const [openingMoves, updateOpeningMoves] = useState<OpeningMovesType | null>(
+    null
+  );
   useEffect(() => {
     if (openingMoves !== null) return;
     loadOpeningMoves().then(
