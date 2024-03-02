@@ -14,7 +14,7 @@ export default function Hideable(props: {
         padding: "2em",
         margin: "2em",
       }}
-      onClick={() => updateHidden(!hidden)}
+      onClick={() => false && updateHidden(!hidden)}
     >
       {props.parent}
       <pre hidden={hidden}>{props.children}</pre>
