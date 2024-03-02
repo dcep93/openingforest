@@ -4,7 +4,7 @@ import Clusters from "./Clusters";
 import { openingGroups } from "./OpeningGroups";
 import Openings from "./Openings";
 
-var initialized = false;
+var initialized = true;
 
 export default function Main() {
   useEffect(() => {
