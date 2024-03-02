@@ -25,8 +25,7 @@ export default function Openings(props: { openings: Opening[] }) {
               <div>
                 <div>index: {i + 1}</div>
                 <div>opening: {obj.name}</div>
-                <div>tactics total: {obj.total}</div>
-                <div>real games total: {Math.random() * 1000}</div>
+                <div>total: {obj.total}</div>
               </div>
             }
           >

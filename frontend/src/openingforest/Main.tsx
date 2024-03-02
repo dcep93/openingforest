@@ -13,7 +13,8 @@ export default function Main() {
     build();
   }, []);
 
-  const [numOpenings, updateNumOpenings] = useState(500);
+  const [numOpenings, updateNumOpenings] = useState(100);
+  const [openingDepth, updateOpeningDepth] = useState(4);
 
   const [group, updateGroup] = useState(Object.keys(openingGroups)[0]);
   const openings = openingGroups[group].slice(0, numOpenings);
@@ -34,6 +35,15 @@ export default function Main() {
             style={{ width: "4em" }}
             value={numOpenings}
             onChange={(e) => updateNumOpenings(parseInt(e.target.value))}
+          />
+        </div>
+        <div>
+          openingDepth:{" "}
+          <input
+            type="number"
+            style={{ width: "4em" }}
+            value={openingDepth}
+            onChange={(e) => updateOpeningDepth(parseInt(e.target.value))}
           />
         </div>
       </div>
