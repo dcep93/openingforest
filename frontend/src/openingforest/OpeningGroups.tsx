@@ -7,7 +7,10 @@ export const openingGroups: { [k: string]: Opening[] } = {
   by_move,
 };
 
-export function loadOpeningMoves(): Promise<{ [k: string]: string[] }> {
+var loaded = false;
+export function loadOpeningMoves(): Promise<{ [k: string]: string[] } | null> {
+  if (loaded) return Promise.resolve(null);
+  loaded = true;
   return Promise.all(
     ["a.tsv", "b.tsv", "c.tsv", "d.tsv", "e.tsv"].map((f) =>
       fetch(`${process.env.PUBLIC_URL}/eco/dist/${f}`)

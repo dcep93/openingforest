@@ -16,8 +16,9 @@ export default function Main() {
   const [openingMoves, updateOpeningMoves] = useState<{} | null>(null);
   useEffect(() => {
     if (openingMoves !== null) return;
-    loadOpeningMoves().then((_openingMoves) =>
-      updateOpeningMoves(_openingMoves)
+    loadOpeningMoves().then(
+      (_openingMoves) =>
+        _openingMoves !== null && updateOpeningMoves(_openingMoves)
     );
   }, [openingMoves]);
 
