@@ -1,23 +1,33 @@
 import { useEffect, useState } from "react";
 import build from "./BuildFromCsv";
 import Clusters from "./Clusters";
-import { openingGroups } from "./OpeningGroups";
+import { loadOpeningMoves, openingGroups } from "./OpeningGroups";
 import Openings from "./Openings";
 
-var initialized = true;
+var initialized = false;
 
 export default function Main() {
   useEffect(() => {
     if (initialized) return;
     initialized = true;
-    build();
+    false && build();
   }, []);
+
+  const [openingMoves, updateOpeningMoves] = useState<{} | null>(null);
+  useEffect(() => {
+    if (openingMoves !== null) return;
+    loadOpeningMoves().then((_openingMoves) =>
+      updateOpeningMoves(_openingMoves)
+    );
+  }, [openingMoves]);
 
   const [numOpenings, updateNumOpenings] = useState(100);
   const [openingDepth, updateOpeningDepth] = useState(4);
 
   const [group, updateGroup] = useState(Object.keys(openingGroups)[0]);
   const openings = openingGroups[group].slice(0, numOpenings);
+
+  if (openingMoves === null) return null;
 
   return (
     <div>
