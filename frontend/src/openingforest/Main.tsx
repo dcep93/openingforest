@@ -32,9 +32,10 @@ export default function Main() {
   const [openingDepth, updateOpeningDepth] = useState(4);
 
   const [group, updateGroup] = useState(Object.keys(openingGroups)[0]);
-  const openings = openingGroups[group].slice(0, numOpenings);
 
   if (openingMoves === null) return null;
+
+  const openings = openingGroups[group].slice(0, numOpenings);
 
   return (
     <div>

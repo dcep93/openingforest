@@ -7,7 +7,10 @@ export const openingGroups: { [k: string]: Opening[] } = {
   by_move,
 };
 
-export type OpeningMovesType = { byName: { [k: string]: string[] } };
+export type OpeningMovesType = {
+  byName: { [k: string]: string[] };
+  byMoves: { [k: string]: string };
+};
 
 var loaded = false;
 export function loadOpeningMoves(): Promise<OpeningMovesType | null> {
@@ -28,11 +31,26 @@ export function loadOpeningMoves(): Promise<OpeningMovesType | null> {
     )
   )
     .then((arr) => arr.flatMap((a) => a))
-    .then((arr) => arr.map(({ name, pgn }) => ({ name, pgn: pgn.split(" ") })))
+    .then((arr) =>
+      arr.map(({ name, pgn }) => ({
+        name: name
+          .replaceAll("ü", "u")
+          .replaceAll("ö", "o")
+          .replaceAll("ć", "c")
+          .replaceAll("é", "e")
+          .replaceAll("ó", "o")
+          .replaceAll("ä", "a")
+          .replaceAll("á", "a")
+          .replaceAll(/[ ]/g, "_")
+          .replaceAll(/[':.]/g, ""),
+        pgn: pgn.replaceAll(/\d+\. /g, ""),
+      }))
+    )
+    .then((arr) => arr.sort((a, b) => a.pgn.length - b.pgn.length))
     .then((arr) => ({
-      byName: Object.fromEntries(arr.map(({ name, pgn }) => [name, pgn])),
-      byMoves: Object.fromEntries(
-        arr.map(({ name, pgn }) => [pgn.join(" "), name])
+      byName: Object.fromEntries(
+        arr.map(({ name, pgn }) => [name, pgn.split(" ")])
       ),
+      byMoves: Object.fromEntries(arr.map(({ name, pgn }) => [pgn, name])),
     }));
 }
