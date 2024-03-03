@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import build from "./BuildFromCsv";
-import Clusters from "./Clusters";
+import build, { Categories } from "./BuildFromCsv";
+import Clusters, { group } from "./Clusters";
 import {
   OpeningMovesType,
   loadOpeningMoves,
@@ -35,7 +35,31 @@ export default function Main() {
 
   if (openingMoves === null) return null;
 
-  const openings = openingGroups[groupX].slice(0, numOpenings);
+  const openings = Object.entries(
+    group(openingGroups[groupX], (opening) => {
+      const moves = openingMoves.byName[opening.name]
+        ?.slice(0, openingDepth)
+        ?.join(" ");
+      if (moves === undefined) return opening.name;
+      const core = openingMoves.byMoves[moves];
+      if (core === undefined) return moves;
+      return core;
+    })
+  )
+    .map(([name, grouped]) => ({
+      name,
+      categories: grouped.reduce((prev, curr) => {
+        Object.entries(curr.categories).forEach(
+          ([k, v]) => (prev[k] = (prev[k] || 0) + v)
+        );
+        return prev;
+      }, {} as Categories),
+    }))
+    .map((o) => ({
+      ...o,
+      total: Object.values(o.categories).reduce((a, b) => a + b, 0),
+    }))
+    .slice(0, numOpenings);
 
   return (
     <div>
