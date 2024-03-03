@@ -30,42 +30,46 @@ export default function Openings(props: { openings: Opening[] }) {
             }
           >
             <div style={{ display: "flex" }}>
-              <table>
-                <tbody>
-                  {Object.entries(obj.categories).map(([c, t]) => (
-                    <tr key={c}>
-                      <td>
-                        {t} ({(t / obj.total).toFixed(6)})
-                      </td>
-                      <td>{c}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <table>
-                <tbody>
-                  {props.openings
-                    .map((o) => ({
-                      distance: normalized[obj.name].normalized
-                        .map((c, i) => c - normalized[o.name].normalized[i])
-                        .map((d) => Math.pow(d, 2))
-                        .reduce((a, b) => a + b, 0),
-                      ...o,
-                    }))
-                    .sort((a, b) => a.distance - b.distance)
-                    .slice(0, allCategories.length)
-                    .map((o) => (
-                      <tr key={o.name}>
+              <div>
+                <table>
+                  <tbody>
+                    {Object.entries(obj.categories).map(([c, t]) => (
+                      <tr key={c}>
                         <td>
-                          {o.distance.toFixed(4)} ({o.total})
+                          {t} ({(t / obj.total).toFixed(6)})
                         </td>
-                        <td>
-                          <a href={`#${o.name}`}>{o.name}</a>
-                        </td>
+                        <td>{c}</td>
                       </tr>
                     ))}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <table>
+                  <tbody>
+                    {props.openings
+                      .map((o) => ({
+                        distance: normalized[obj.name].normalized
+                          .map((c, i) => c - normalized[o.name].normalized[i])
+                          .map((d) => Math.pow(d, 2))
+                          .reduce((a, b) => a + b, 0),
+                        ...o,
+                      }))
+                      .sort((a, b) => a.distance - b.distance)
+                      .slice(0, allCategories.length)
+                      .map((o) => (
+                        <tr key={o.name}>
+                          <td>
+                            {o.distance.toFixed(4)} ({o.total})
+                          </td>
+                          <td>
+                            <a href={`#${o.name}`}>{o.name}</a>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </Bubble>
         </div>

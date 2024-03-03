@@ -9,7 +9,6 @@ export default function Bubble(props: {
     <div
       style={{
         display: "inline-block",
-        cursor: "pointer",
         border: "2px solid black",
         padding: "2em",
         margin: "2em",

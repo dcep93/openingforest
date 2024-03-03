@@ -111,6 +111,10 @@ export function buildClusters(
       data: allCategories.map((c) => (categories[c] / total || 0) - ratios[c]),
     }));
   const data = taggedData.map(({ data }) => data);
+  if (options.numClusters >= data.length) {
+    alert("too many clusters");
+    return [];
+  }
   const clusters = kmeans(data, options.numClusters, { seed: 0 });
   const info = clusters.computeInformation(data);
   return Object.entries(
