@@ -37,7 +37,7 @@ function getCategories(r: Row): string[] {
 
 export default function build() {
   return (
-    fetch("./lichess_db_puzzle.csv") // lichess_db_puzzle
+    fetch("./sample.csv") // lichess_db_puzzle
       // 3709216 - PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
       .then((resp) =>
         resp.arrayBuffer().then((arrayBuffer) => {
@@ -77,17 +77,15 @@ export default function build() {
             Promise.resolve()
               .then(() =>
                 results.data.map((r, i) =>
-                  (r.OpeningTags || "<none>")
-                    .split(" ")
-                    .concat("<all>")
-                    .forEach((name) => {
-                      if (!openingCategories[name])
-                        openingCategories[name] = {};
-                      getCategories(r).forEach((c) => {
+                  (r.OpeningTags || "<none>").split(" ").forEach((name) => {
+                    if (!openingCategories[name]) openingCategories[name] = {};
+                    getCategories(r)
+                      .concat("<all>")
+                      .forEach((c) => {
                         openingCategories[name][c] =
                           (openingCategories[name][c] || 0) + 1;
                       });
-                    })
+                  })
                 )
               )
               .then(() => openingCategories)
@@ -96,10 +94,11 @@ export default function build() {
       .then((openingCategories) =>
         Object.entries(openingCategories).map(([name, categories]) => ({
           name,
-          total: Object.values(categories).reduce((a, b) => a + b, 0),
+          total: categories["<all>"],
           categories: Object.fromEntries(
             Object.entries(categories)
               .map(([k, v]) => ({ k, v }))
+              .filter(({ k }) => k !== "<all>")
               .sort((a, b) => b.v - a.v)
               .map(({ k, v }) => [k, v])
           ),
