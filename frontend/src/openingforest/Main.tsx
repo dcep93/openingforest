@@ -31,17 +31,17 @@ export default function Main() {
   const [numOpenings, updateNumOpenings] = useState(100);
   const [openingDepth, updateOpeningDepth] = useState(4);
 
-  const [group, updateGroup] = useState(Object.keys(openingGroups)[0]);
+  const [groupX, updateGroup] = useState(Object.keys(openingGroups)[0]);
 
   if (openingMoves === null) return null;
 
-  const openings = openingGroups[group].slice(0, numOpenings);
+  const openings = openingGroups[groupX].slice(0, numOpenings);
 
   return (
     <div>
       <div>openingforest</div>
       <div>
-        <select value={group} onChange={(e) => updateGroup(e.target.value)}>
+        <select value={groupX} onChange={(e) => updateGroup(e.target.value)}>
           {Object.keys(openingGroups).map((g) => (
             <option key={g}>{g}</option>
           ))}
