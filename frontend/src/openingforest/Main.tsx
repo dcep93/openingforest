@@ -22,7 +22,7 @@ export default function Main() {
   useEffect(() => {
     if (initialized) return;
     initialized = true;
-    build();
+    false && build();
   }, []);
 
   const [openingMoves, updateOpeningMoves] = useState<OpeningMovesType | null>(
