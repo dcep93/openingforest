@@ -2,8 +2,8 @@ import { useState } from "react";
 
 import { kmeans } from "ml-kmeans";
 
+import Bubble from "./Bubble";
 import { Opening } from "./BuildFromCsv";
-import Hideable from "./Hideable";
 
 export type ClusterType = {
   size: number;
@@ -58,7 +58,7 @@ export default function Clusters(props: { openings: Opening[] }) {
       <div>
         {clusters.map((obj, i) => (
           <div key={i} style={{ display: "flex", alignItems: "flex-start" }}>
-            <Hideable
+            <Bubble
               parent={
                 <div>
                   <div>index: {i}</div>
@@ -66,16 +66,22 @@ export default function Clusters(props: { openings: Opening[] }) {
               }
             >
               <div>{JSON.stringify(obj.centroid, null, 2)}</div>
-            </Hideable>
-            <Hideable
+            </Bubble>
+            <Bubble
               parent={
                 <div>
                   <div>size: {obj.size}</div>
                 </div>
               }
             >
-              <div>{JSON.stringify(obj.openings, null, 2)}</div>
-            </Hideable>
+              <div>
+                {obj.openings.map((o) => (
+                  <div key={o}>
+                    <a href={`#${o}`}>{o}</a>
+                  </div>
+                ))}
+              </div>
+            </Bubble>
           </div>
         ))}
       </div>

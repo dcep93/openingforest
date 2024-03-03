@@ -1,5 +1,5 @@
+import Bubble from "./Bubble";
 import { Opening } from "./BuildFromCsv";
-import Hideable from "./Hideable";
 
 export default function Openings(props: { openings: Opening[] }) {
   const allCategories = Object.keys(
@@ -19,8 +19,8 @@ export default function Openings(props: { openings: Opening[] }) {
   return (
     <div>
       {props.openings.map((obj, i) => (
-        <div key={i}>
-          <Hideable
+        <div key={i} id={obj.name}>
+          <Bubble
             parent={
               <div>
                 <div>index: {i + 1}</div>
@@ -30,31 +30,40 @@ export default function Openings(props: { openings: Opening[] }) {
             }
           >
             <div style={{ display: "flex" }}>
-              <div>{JSON.stringify(obj.categories, null, 2)}</div>
-              <div>
-                {JSON.stringify(
-                  Object.fromEntries(
-                    props.openings
-                      .map((o) => ({
-                        distance: normalized[obj.name].normalized
-                          .map((c, i) => c - normalized[o.name].normalized[i])
-                          .map((d) => Math.pow(d, 2))
-                          .reduce((a, b) => a + b, 0),
-                        ...o,
-                      }))
-                      .sort((a, b) => a.distance - b.distance)
-                      .map((o) => [
-                        o.name,
-                        `${o.distance.toFixed(4)} (${o.total})`,
-                      ])
-                      .slice(0, allCategories.length)
-                  ),
-                  null,
-                  2
-                )}
-              </div>
+              <table>
+                {Object.entries(obj.categories).map(([c, t]) => (
+                  <tr key={c}>
+                    <td>
+                      {t} ({(t / obj.total).toFixed(6)})
+                    </td>
+                    <td>{c}</td>
+                  </tr>
+                ))}
+              </table>
+              <table>
+                {props.openings
+                  .map((o) => ({
+                    distance: normalized[obj.name].normalized
+                      .map((c, i) => c - normalized[o.name].normalized[i])
+                      .map((d) => Math.pow(d, 2))
+                      .reduce((a, b) => a + b, 0),
+                    ...o,
+                  }))
+                  .sort((a, b) => a.distance - b.distance)
+                  .slice(0, allCategories.length)
+                  .map((o) => (
+                    <tr key={o.name}>
+                      <td>
+                        {o.distance.toFixed(4)} ({o.total})
+                      </td>
+                      <td>
+                        <a href={`#${o.name}`}>{o.name}</a>
+                      </td>
+                    </tr>
+                  ))}
+              </table>
             </div>
-          </Hideable>
+          </Bubble>
         </div>
       ))}
     </div>

@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 
-export default function Hideable(props: {
+export default function Bubble(props: {
   parent: ReactNode;
   children: ReactNode;
 }) {
