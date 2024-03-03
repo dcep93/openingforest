@@ -43,7 +43,7 @@ export default function Main() {
       if (moves === undefined) return opening.name;
       const core = openingMoves.byMoves[moves];
       if (core === undefined) return moves;
-      return core;
+      return `${core} (${moves})`;
     })
   )
     .map(([name, grouped]) => ({
