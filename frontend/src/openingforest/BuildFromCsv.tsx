@@ -15,7 +15,7 @@ export type Row = {
 };
 
 function getCategories(r: Row): string[] {
-  // return r.Themes.split(" ").concat("<all>");
+  // return r.Themes.split(" ");
   const move = r.Moves.split(" ")[1];
   var column = move.charCodeAt(0) - 97;
   const char = r.FEN.split("/")
@@ -37,7 +37,7 @@ function getCategories(r: Row): string[] {
 
 export default function build() {
   return (
-    fetch("./sample.csv") // lichess_db_puzzle
+    fetch("./lichess_db_puzzle.csv") // lichess_db_puzzle
       // 3709216 - PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
       .then((resp) =>
         resp.arrayBuffer().then((arrayBuffer) => {
@@ -77,15 +77,19 @@ export default function build() {
             Promise.resolve()
               .then(() =>
                 results.data.map((r, i) =>
-                  (r.OpeningTags || "<none>").split(" ").forEach((name) => {
-                    if (!openingCategories[name]) openingCategories[name] = {};
-                    getCategories(r)
-                      .concat("<all>")
-                      .forEach((c) => {
-                        openingCategories[name][c] =
-                          (openingCategories[name][c] || 0) + 1;
-                      });
-                  })
+                  (r.OpeningTags || "<none>")
+                    .split(" ")
+                    .concat("<all>")
+                    .forEach((name) => {
+                      if (!openingCategories[name])
+                        openingCategories[name] = {};
+                      getCategories(r)
+                        .concat("<all>")
+                        .forEach((c) => {
+                          openingCategories[name][c] =
+                            (openingCategories[name][c] || 0) + 1;
+                        });
+                    })
                 )
               )
               .then(() => openingCategories)
