@@ -104,7 +104,7 @@ function helper(url: string, attempt: number = 0): Promise<LiMove[]> {
 
 export function getFen(startingFen: string, san: string): string {
   // @ts-ignore
-  const chess = new Chess();
+  const chess: ChessInstance = new Chess();
   chess.load(startingFen);
   chess.move(san);
   return chess.fen();
