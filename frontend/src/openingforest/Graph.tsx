@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import lichessF, { LiMove } from "./Lichess";
+import lichessF, { LiMove, isWhiteTurn } from "./Lichess";
 import { OpeningMovesType } from "./OpeningGroups";
 import settings from "./Settings";
 
@@ -99,7 +99,10 @@ export default function Graph(props: { openingMoves: OpeningMovesType }) {
 function fetchTree(root: RootType): Promise<TreeType> {
   function helper(fen: string, threshold: number): Promise<TreeType[] | null> {
     if (threshold >= 1) return Promise.resolve(null);
-    return lichessF(fen, root.lichessUsername)
+    return lichessF(
+      fen,
+      isWhiteTurn(fen) === root.isWhite ? root.lichessUsername : null
+    )
       .then((children) => ({
         children,
         total: children.map((child) => child.total).reduce((a, b) => a + b, 0),

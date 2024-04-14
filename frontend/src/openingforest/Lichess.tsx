@@ -59,17 +59,19 @@ export default function lichessF(
     )
     .then((movePromises: Promise<LiMove>[]) => Promise.all(movePromises))
     .then((moves: LiMove[]) =>
-      moves.map((move) => ({
-        ...move,
-        score: Math.min(
-          420,
-          (100 * move.score) /
-            moves
-              .filter((m) => m.san !== move.san)
-              .map((m) => m.score)
-              .sort((a, b) => b - a)[0]
-        ),
-      }))
+      moves
+        .map((move) => ({
+          ...move,
+          score: Math.min(
+            420,
+            (100 * move.score) /
+              moves
+                .filter((m) => m.san !== move.san)
+                .map((m) => m.score)
+                .sort((a, b) => b - a)[0]
+          ),
+        }))
+        .sort((a, b) => b.score - a.score)
     );
   promises[key] = p;
   return p;
