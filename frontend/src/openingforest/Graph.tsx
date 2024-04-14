@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import lichessF, { LiMove, isWhiteTurn } from "./Lichess";
 import { OpeningMovesType } from "./OpeningGroups";
 import settings from "./Settings";
@@ -15,8 +15,6 @@ type RootType = {
 };
 
 export default function Graph(props: { openingMoves: OpeningMovesType }) {
-  const lichessRef = React.useRef<HTMLInputElement>(null);
-  const cutoffRatioRef = React.useRef<HTMLInputElement>(null);
   const [tree, updateTree] = useState<TreeType | null>(null);
   const [root, _updateRoot] = useState<RootType>({
     fen: settings.STARTING_FEN,
@@ -39,13 +37,12 @@ export default function Graph(props: { openingMoves: OpeningMovesType }) {
           onSubmit={(e) => {
             e.preventDefault();
             updateRoot({
-              lichessUsername: lichessRef.current!.value,
+              lichessUsername: (e.target as any)[0].value,
             });
           }}
         >
           <input
             name={"lichessRef"}
-            ref={lichessRef}
             style={{ width: "4em" }}
             autoComplete={"on"}
           />
@@ -58,12 +55,11 @@ export default function Graph(props: { openingMoves: OpeningMovesType }) {
           onSubmit={(e) => {
             e.preventDefault();
             updateRoot({
-              cutoffRatio: parseInt(cutoffRatioRef.current!.value),
+              cutoffRatio: parseInt((e.target as any)[0].value),
             });
           }}
         >
           <input
-            ref={cutoffRatioRef}
             style={{ width: "4em" }}
             type={"number"}
             defaultValue={root.cutoffRatio}
