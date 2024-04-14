@@ -3,7 +3,8 @@ import lichessF, { LiMove, isWhiteTurn } from "./Lichess";
 import { OpeningMovesType } from "./OpeningGroups";
 import settings from "./Settings";
 
-type TreeType = LiMove & {
+type TreeType = {
+  move: LiMove | null;
   children: TreeType[] | null;
 };
 
@@ -108,7 +109,7 @@ function fetchTree(root: RootType): Promise<TreeType> {
           helper(child.fen, (threshold * total) / child.total).then(
             (children) => ({
               children,
-              ...child,
+              move: child,
             })
           )
         )
@@ -118,16 +119,6 @@ function fetchTree(root: RootType): Promise<TreeType> {
 
   return helper(root.fen, root.cutoffRatio).then((children) => ({
     children,
-
-    fen: root.fen,
-    san: "root",
-    white: -1,
-    black: -1,
-    draws: -1,
-    averageRating: -1,
-
-    whiteWinPercentage: -1,
-    total: -1,
-    score: -1,
+    move: null,
   }));
 }

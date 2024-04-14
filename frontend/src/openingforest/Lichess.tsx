@@ -10,6 +10,7 @@ export type LiMove = {
   draws: number;
   averageRating: number;
 
+  username: string | null;
   fen: string;
   whiteWinPercentage: number;
   total: number;
@@ -44,6 +45,7 @@ export default function lichessF(
       moves
         .map((move: LiMove) => ({
           ...move,
+          username,
           fen: getFen(fen, move.san),
           whiteWinPercentage: move.white / (move.black + move.white),
           total: move.black + move.white + move.draws,
