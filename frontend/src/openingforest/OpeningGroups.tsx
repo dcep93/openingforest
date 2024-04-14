@@ -8,6 +8,7 @@ export const openingGroups: { [k: string]: Opening[] } = {
 };
 
 export type OpeningMovesType = {
+  byEpd: { [k: string]: string };
   byName: { [k: string]: string[] };
   byMoves: { [k: string]: string };
 };
@@ -32,7 +33,7 @@ export function loadOpeningMoves(): Promise<OpeningMovesType | null> {
   )
     .then((arr) => arr.flatMap((a) => a))
     .then((arr) =>
-      arr.map(({ name, pgn }) => ({
+      arr.map(({ name, pgn, epd }) => ({
         name: name
           .replaceAll("ü", "u")
           .replaceAll("ö", "o")
@@ -44,10 +45,12 @@ export function loadOpeningMoves(): Promise<OpeningMovesType | null> {
           .replaceAll(/[ ]/g, "_")
           .replaceAll(/[':.]/g, ""),
         pgn: pgn.replaceAll(/\d+\. /g, ""),
+        epd,
       }))
     )
     .then((arr) => arr.sort((a, b) => a.pgn.length - b.pgn.length))
     .then((arr) => ({
+      byEpd: Object.fromEntries(arr.map(({ name, epd }) => [epd, name])),
       byName: Object.fromEntries(
         arr.map(({ name, pgn }) => [name, pgn.split(" ")])
       ),

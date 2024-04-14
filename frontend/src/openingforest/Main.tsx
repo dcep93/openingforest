@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import build, { Categories } from "./BuildFromCsv";
 import Clusters, { group } from "./Clusters";
+import Graph from "./Graph";
 import {
   OpeningMovesType,
   loadOpeningMoves,
@@ -91,6 +92,9 @@ export default function Main() {
   return (
     <div>
       <div>openingforest</div>
+      <div>
+        <Graph openingMoves={openingMoves} />
+      </div>
       <div>
         <div>
           <select value={groupX} onChange={(e) => updateGroup(e.target.value)}>
