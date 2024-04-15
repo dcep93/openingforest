@@ -1,30 +1,32 @@
-import Chess from "chess.js";
+import Chess, { ChessInstance } from "chess.js";
 
 import settings from "./Settings";
 import StorageW from "./StorageW";
 
-export type LiMove = {
+type RawMove = {
   san: string;
   white: number;
   black: number;
   draws: number;
   averageRating: number;
-
-  username: string | null;
-  fen: string;
-  whiteWinPercentage: number;
-  total: number;
-  score: number;
 };
 
-export function isWhiteTurn(fen: string): boolean {
-  return fen.split(" ")[1] === "w";
-}
+export type LiMove = {
+  raw: RawMove;
+  meta: {
+    username: string | null;
+    fen: string;
+    whiteWinPercentage: number;
+    total: number;
+    probability: number;
+    score: number;
+  };
+};
 
 export default function lichessF(
   fen: string,
   username: string | null
-): Promise<LiMove[]> {
+): Promise<LiMove[] | null> {
   const isWhite = isWhiteTurn(fen);
 
   const url =
@@ -37,79 +39,108 @@ export default function lichessF(
     url,
   });
   const pp = promises[key];
-  if (pp) {
-    return pp;
+  if (pp) return pp;
+
+  function helper(url: string, attempt: number = 0): Promise<RawMove[] | null> {
+    if (attempt > settings.MAX_LICHESS_ATTEMPTS) return Promise.resolve(null);
+
+    const storedMoves = StorageW.get(url);
+    if (storedMoves !== null) return Promise.resolve(storedMoves.moves);
+
+    return Promise.resolve()
+      .then(() => console.log("fetching", attempt, url))
+      .then(() => fetch(url))
+      .then((response) =>
+        response.ok
+          ? response.text().then((text) => {
+              const json = JSON.parse(text.trim().split("\n").reverse()[0]);
+              const moves = json.moves;
+              StorageW.set(url, { moves });
+              return moves;
+            })
+          : new Promise((resolve) =>
+              setTimeout(
+                () => helper(url, attempt + 1).then((moves) => resolve(moves)),
+                1000
+              )
+            )
+      );
   }
-  const p = helper(url)
-    .then((moves) =>
-      moves
-        .map((move: LiMove) => ({
-          ...move,
-          username,
-          fen: getFen(fen, move.san),
-          whiteWinPercentage: move.white / (move.black + move.white),
-          total: move.black + move.white + move.draws,
-        }))
-        .map((move: LiMove) =>
-          Promise.resolve()
-            .then(() => getRawScore(isWhite, move))
-            .then((score) => ({
-              ...move,
-              score,
+  const p = helper(url).then((moves) =>
+    moves === null
+      ? null
+      : Promise.resolve(moves)
+          .then((moves) =>
+            moves.map((raw) => ({
+              raw,
+              meta: {
+                username,
+                fen: getFen(fen, raw.san),
+                whiteWinPercentage: raw.white / (raw.black + raw.white),
+                total: raw.black + raw.white + raw.draws,
+                probability: -1,
+                score: -1,
+              },
             }))
-        )
-    )
-    .then((movePromises: Promise<LiMove>[]) => Promise.all(movePromises))
-    .then((moves: LiMove[]) =>
-      moves
-        .map((move) => ({
-          ...move,
-          score: Math.min(
-            420,
-            (100 * move.score) /
-              moves
-                .filter((m) => m.san !== move.san)
-                .map((m) => m.score)
-                .sort((a, b) => b - a)[0]
-          ),
-        }))
-        .sort((a, b) => b.score - a.score)
-    );
+          )
+          .then((moves) => ({
+            moves,
+            total: moves.map((m) => m.meta.total).reduce((a, b) => a + b, 0),
+          }))
+          .then(({ moves, total }) =>
+            moves.map((move) => ({
+              raw: move.raw,
+              meta: {
+                ...move.meta,
+                probability: move.meta.total / total,
+              },
+            }))
+          )
+          .then((moves) =>
+            moves
+              .map((move) => ({
+                raw: move.raw,
+                meta: {
+                  ...move.meta,
+                  score: getRawScore(isWhite, move),
+                },
+              }))
+              .sort((a, b) => b.meta.score - a.meta.score)
+          )
+          .then((moves) =>
+            moves.map((move) => ({
+              raw: move.raw,
+              meta: {
+                ...move.meta,
+                score: Math.min(
+                  420,
+                  (100 * move.meta.score) /
+                    moves
+                      .filter((m) => m.raw.san !== move.raw.san)
+                      .map((m) => m.meta.score)[0]
+                ),
+              },
+            }))
+          )
+  );
   promises[key] = p;
   return p;
 }
-const promises: { [key: string]: Promise<LiMove[]> } = {};
+const promises: { [key: string]: Promise<LiMove[] | null> } = {};
 
-function helper(url: string, attempt: number = 0): Promise<LiMove[]> {
-  if (attempt > settings.MAX_LICHESS_ATTEMPTS) return Promise.resolve([]);
+export function getChess(fen: string): ChessInstance {
+  // @ts-ignore
+  const chess = new Chess();
+  chess.load(fen);
+  return chess;
+}
 
-  const storedMoves = StorageW.get(url);
-  if (storedMoves !== null) return Promise.resolve(storedMoves.moves);
-
-  return Promise.resolve()
-    .then(() => console.log("fetching", attempt, url))
-    .then(() => fetch(url))
-    .then((response) =>
-      response.ok
-        ? response.text().then((text) => {
-            const json = JSON.parse(text.trim().split("\n").reverse()[0]);
-            const moves = json.moves;
-            StorageW.set(url, json);
-            return moves;
-          })
-        : new Promise((resolve) =>
-            setTimeout(
-              () => helper(url, attempt + 1).then((moves) => resolve(moves)),
-              1000
-            )
-          )
-    );
+export function isWhiteTurn(fen: string): boolean {
+  return getChess(fen).turn() === "w";
 }
 
 export function getFen(startingFen: string, san: string): string {
-  // @ts-ignore
-  const chess: ChessInstance = new Chess();
-  chess.load(startingFen);
+  const chess = getChess(startingFen);
   chess.move(san);
   return chess.fen();
 }
@@ -120,8 +151,8 @@ export function getRawScore(isWhite: boolean, move: LiMove): number {
   // SCORE_FLUKE_DISCOUNT = 100 discounts positions
   // that are very rare
   const winRate =
-    (isWhite ? move.white : move.black) /
-    (settings.SCORE_FLUKE_DISCOUNT + move.black + move.white);
+    (isWhite ? move.raw.white : move.raw.black) /
+    (settings.SCORE_FLUKE_DISCOUNT + move.raw.black + move.raw.white);
   // use atan around 0.5 because the difference between a
   // 50-60% win rate is larger than the difference
   // between a 70-80% win rate
@@ -133,6 +164,6 @@ export function getRawScore(isWhite: boolean, move: LiMove): number {
   const powerScore = Math.pow(settings.SCORE_WIN_FACTOR, winScore);
   // SCORE_TOTAL_FACTOR = 0.2 rewards more common moves, but not too much
   const rawScore =
-    powerScore * Math.pow(move.total, settings.SCORE_TOTAL_FACTOR);
+    powerScore * Math.pow(move.meta.total, settings.SCORE_TOTAL_FACTOR);
   return rawScore;
 }

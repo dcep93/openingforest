@@ -5,6 +5,7 @@ import settings from "./Settings";
 
 type TreeType = {
   move: LiMove | null;
+  previous: string[];
   children: TreeType[] | null;
 };
 
@@ -63,6 +64,7 @@ export default function Graph(props: { openingMoves: OpeningMovesType }) {
           <input
             style={{ width: "4em" }}
             type={"number"}
+            step={"any"}
             defaultValue={root.cutoffRatio}
           />
         </form>
@@ -94,31 +96,40 @@ export default function Graph(props: { openingMoves: OpeningMovesType }) {
 }
 
 function fetchTree(root: RootType): Promise<TreeType> {
-  function helper(fen: string, threshold: number): Promise<TreeType[] | null> {
+  function helper(
+    fen: string,
+    threshold: number,
+    previous: string[]
+  ): Promise<TreeType[] | null> {
     if (threshold >= 1) return Promise.resolve(null);
     return lichessF(
       fen,
       isWhiteTurn(fen) === root.isWhite ? root.lichessUsername : null
-    )
-      .then((children) => ({
-        children,
-        total: children.map((child) => child.total).reduce((a, b) => a + b, 0),
-      }))
-      .then(({ children, total }) =>
-        children.map((child) =>
-          helper(child.fen, (threshold * total) / child.total).then(
-            (children) => ({
-              children,
-              move: child,
-            })
-          )
-        )
-      )
-      .then((promises) => Promise.all(promises));
+    ).then((children) =>
+      children === null
+        ? null
+        : Promise.resolve()
+            .then(() =>
+              children.map((child) =>
+                helper(
+                  child.meta.fen,
+                  threshold / child.meta.probability,
+                  previous.concat(child.raw.san)
+                ).then((children) => ({
+                  previous,
+                  move: child,
+                  children,
+                }))
+              )
+            )
+
+            .then((promises) => Promise.all(promises))
+    );
   }
 
-  return helper(root.fen, root.cutoffRatio).then((children) => ({
-    children,
+  return helper(root.fen, root.cutoffRatio, []).then((children) => ({
+    previous: [],
     move: null,
+    children,
   }));
 }

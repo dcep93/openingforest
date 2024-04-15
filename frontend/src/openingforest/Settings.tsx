@@ -4,7 +4,7 @@ const settings = {
   LICHESS_PARAMS: `variant=standard&speeds=rapid,classical&ratings=${[
     2000, 2200, 2500,
   ].join(",")}`,
-  MAX_LICHESS_ATTEMPTS: 5,
+  MAX_LICHESS_ATTEMPTS: 2,
   MIN_NODE_RATIO: 0.05,
   SCORE_FLUKE_DISCOUNT: 100,
   SCORE_ATAN_FACTOR: 9,
