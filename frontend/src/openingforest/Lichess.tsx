@@ -1,3 +1,5 @@
+// npm install --save @types/chess.js@0.13.4
+// npm install --save chess.js@0.12.0
 import Chess, { ChessInstance } from "chess.js";
 
 import settings from "./Settings";
